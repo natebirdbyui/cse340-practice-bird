@@ -8,6 +8,7 @@
   },
   "type": "module",
   "scripts": {
+    "dev": "nodemon --env-file=.env server.js",
     "start": "node restore.js"
   },
   "keywords": [],
