@@ -7,6 +7,8 @@ import express from 'express';
 import { fileURLToPath } from 'url';
 import path from 'path';
 
+import router from './src/controllers/routes.js';
+import { handle404, handleErrors } from './src/controllers/error.js';
 /**
  * Declare Important Variables
  */
@@ -45,6 +47,7 @@ app.use((req, res, next) => {
     next();
 });
 
+
 /**
  * Routes
  */
@@ -60,6 +63,16 @@ app.get('/products', (req, res) => {
     const title = 'Our Products';
     res.render('products', { title });
 });
+
+// Central Router
+app.use('/', router);
+
+/**
+ * Error Handling Middleware
+ * Place after Routes--not above
+ */
+app.use(handle404);
+app.use(handleErrors);
 
 // When in development mode, start a WebSocket server for live reloading
 if (NODE_ENV.includes('dev')) {
