@@ -6,6 +6,9 @@ html, body {
 
 }
 body {
+    &.blue-theme { background-color: #02416e; }
+    &.green-theme { background-color: #086808; }
+    &.red-theme { background-color: #eb082a; }
     nav {
         ul {
             list-style-type: none;
@@ -17,7 +20,7 @@ body {
         }
         a {
             text-decoration: none;
-            color: #ccc;
+            color: black;
             font-weight: bold;
             &:hover {
                 color: #0066cc;
@@ -27,5 +30,28 @@ body {
 }
 
 h1, p {
-    color: #ccc;
+    color: black;
+}
+
+.error-container {
+    background-color: #333;
+    color: #fff;
+    padding: 20px;
+    border-radius: 5px;
+    margin: 20px 0;
+}
+
+.error-container a {
+    color: #cc0000;
+    text-decoration: none;
+    font-weight: bold;
+}
+.error-container a:hover {
+    text-decoration: underline;
+}
+
+.error-image {
+    max-width: 550px;
+    max-height: 550px;
+    height: auto;
 }

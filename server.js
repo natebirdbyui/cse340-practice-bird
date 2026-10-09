@@ -1,55 +1,108 @@
 /**
- *  Import libraries
+ * Import libraries
  */
-
-// Import express using ESM syntax
 import express from 'express';
 import { fileURLToPath } from 'url';
 import path from 'path';
 
 import router from './src/controllers/routes.js';
-import { handle404, handleErrors } from './src/controllers/error.js';
+
 /**
  * Declare Important Variables
  */
-// Define the port number the server will listen on
 const NODE_ENV = process.env.NODE_ENV || 'production';
 const PORT = process.env.PORT || 3000;
-const name = process.env.NAME; // <--NEW
+const name = process.env.NAME;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
 /**
  * Setup Express Server
  */
-// Create an instance of an Express application
 const app = express();
 
 /**
  * Configure Express middleware
  */
-// Serve static files from the public directory
 app.use(express.static(path.join(__dirname, 'public')));
-// Set EJS as the templating engine
 app.set('view engine', 'ejs');
-// Tell Express where to find your templates
 app.set('views', path.join(__dirname, 'src/views'));
 
 /**
  * Global template variables middleware
- * 
- * Makes common variables available to all EJS templates without having to pass
- * them individually from each route handler
  */
 app.use((req, res, next) => {
-    // Make NODE_ENV available to all templates
     res.locals.NODE_ENV = NODE_ENV.toLowerCase() || 'production';
-    // Continue to the next middleware or route handler
+    next();
+});
+
+app.use((req, res, next) => {
+    // Skip logging for routes that start with /. (like /.well-known/)
+    if (!req.path.startsWith('/.')) {
+        console.log(`${req.method} ${req.url}`);
+    }
+    next(); // Pass control to the next middleware or route
+});
+
+// Middleware to add global data to all templates
+app.use((req, res, next) => {
+    // Add current year for copyright
+    res.locals.currentYear = new Date().getFullYear();
+    next();
+});
+
+// Global middleware for time-based greeting
+app.use((req, res, next) => {
+    const currentHour = new Date().getHours();
+    let greeting = 'Good Evening!';
+
+    if (currentHour < 12) {
+        greeting = 'Good Morning!';
+    } else if (currentHour < 18) {
+        greeting = 'Good Afternoon!';
+    }
+
+    res.locals.greeting = greeting;
+    next();
+});
+
+// Global middleware for time-based greeting
+app.use((req, res, next) => {
+    const currentHour = new Date().getHours();
+
+    /**
+     * Create logic to set different greetings based on the current hour.
+     * Use res.locals.greeting to store the greeting message.
+     * Hint: morning (before 12), afternoon (12-17), evening (after 17)
+     */
+
+
     next();
 });
 
 
+// Global middleware for random theme selection
+app.use((req, res, next) => {
+    const themes = ['blue-theme', 'green-theme', 'red-theme'];
+    const randomTheme = themes[Math.floor(Math.random() * themes.length)];
+    res.locals.bodyClass = randomTheme;
+    next();
+});
+
+// Global middleware to share query parameters with templates
+app.use((req, res, next) => {
+    res.locals.queryParams = req.query || {};
+    next();
+});
+
+// Route-specific middleware that sets custom headers
+const addDemoHeaders = (req, res, next) => {
+    res.setHeader('X-Demo-Page', 'true');
+    res.setHeader('X-Middleware-Demo', 'Express Middleware Learning Demo');
+    next();
+};
 /**
- * Routes
+ * Routes (ALL application routes come FIRST)
  */
 app.get('/', (req, res) => {
     const title = 'Welcome Home';
@@ -64,15 +117,63 @@ app.get('/products', (req, res) => {
     res.render('products', { title });
 });
 
-// Central Router
+
+// Demo page route with header middleware
+app.get('/demo', addDemoHeaders, (req, res) => {
+    res.render('demo', { title: 'Middleware Demo Page' });
+});
+
+// Central Router (Faculty, Catalog, etc.)
 app.use('/', router);
 
+//Test route for 500 errors
+app.get('/test-error', (req, res, next) => {
+    const err = new Error('This is a test error');
+    err.status = 500;
+    next(err);
+});
+
 /**
- * Error Handling Middleware
- * Place after Routes--not above, used AI to assist Error Handling for not displaying.
+ * Catch-all route for 404 errors
+ * MUST be placed AFTER all real routes!
  */
-app.use(handle404);
-app.use(handleErrors);
+app.use((req, res, next) => {
+    const err = new Error('Page Not Found');
+    err.status = 404;
+    next(err);
+});
+
+/**
+ * Global Error Handler
+ * MUST be placed LAST after all routes and catch-all middleware!
+ */
+app.use((err, req, res, next) => {
+    // Prevent infinite loops, if a response has already been sent, do nothing
+    if (res.headersSent || res.finished) {
+        return next(err);
+    }
+
+    // Determine status and template
+    const status = err.status || 500;
+    const template = status === 404 ? '404' : '500';
+
+    // Prepare data for the template
+    const context = {
+        title: status === 404 ? 'Page Not Found' : 'Server Error',
+        error: NODE_ENV === 'production' ? 'An error occurred' : err.message,
+        stack: NODE_ENV === 'production' ? null : err.stack,
+        NODE_ENV
+    };
+
+    // Render the appropriate error template with fallback
+    try {
+        res.status(status).render(`errors/${template}`, context);
+    } catch (renderErr) {
+        if (!res.headersSent) {
+            res.status(status).send(`<h1>Error ${status}</h1><p>An error occurred.</p>`);
+        }
+    }
+});
 
 // When in development mode, start a WebSocket server for live reloading
 if (NODE_ENV.includes('dev')) {
