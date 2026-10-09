@@ -69,7 +69,7 @@ app.use('/', router);
 
 /**
  * Error Handling Middleware
- * Place after Routes--not above
+ * Place after Routes--not above, used AI to assist Error Handling for not displaying.
  */
 app.use(handle404);
 app.use(handleErrors);
