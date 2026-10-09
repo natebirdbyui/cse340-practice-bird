@@ -1,30 +1,53 @@
-import { getFacultyById, getSortedFaculty } from '../../models/faculty/faculty.js';
+import { getAllCourses, getCourseById } from '../../models/catalog/catalog.js';
 
-const facultyListPage = (req, res) => {
-    const sortBy = req.query.sortBy || 'name';
-    const facultyList = getSortedFaculty(sortBy);
+// 1. Catalog List Page
+const catalogListPage = (req, res) => {
+    const courses = getAllCourses();
+    res.render('catalog', {
+        title: 'Course Catalog',
+        courses: courses
+    });
+};
 
-    res.render('faculty/list', {
-        title: 'Faculty Directory',
-        facultyList,
+// 2. Course Detail Page with Sorting
+const courseDetailPage = (req, res, next) => {
+    const courseId = req.params.courseId;
+    const course = getCourseById(courseId);
+
+    // Handle course not found - passes error to global error handler in server.js
+    if (!course) {
+        const err = new Error(`Course ${courseId} not found`);
+        err.status = 404;
+        return next(err);
+    }
+
+    // Get sort query parameter (default to 'time')
+    const sortBy = req.query.sort || 'time';
+
+    // Create a shallow copy of sections array before sorting
+    let sortedSections = [...course.sections];
+
+    switch (sortBy) {
+        case 'professor':
+            sortedSections.sort((a, b) => a.professor.localeCompare(b.professor));
+            break;
+        case 'room':
+            sortedSections.sort((a, b) => a.room.localeCompare(b.room));
+            break;
+        case 'time':
+        default:
+            // Keep original time order
+            break;
+    }
+
+    console.log(`Viewing course: ${courseId}, sorted by: ${sortBy}`);
+
+    // Renders src/views/course-detail.ejs (Solution A)
+    res.render('course-detail', {
+        title: `${course.id} - ${course.title}`,
+        course: { ...course, sections: sortedSections },
         currentSort: sortBy
     });
 };
 
-const facultyDetailPage = (req, res, next) => {
-    const { facultyId} = req.params;
-    const facultyMember = getFacultyById(facultyId);
-
-    if (!facultyMember) {
-        const err = new Error('Faculty member not found');
-        err.status = 404;
-        return next(err); //handle 404 error for faculty member not found
-    }
-
-    res.render('faculty/detail', {
-        title: facultyMember.name, 
-        faculty: facultyMember // Pass the faculty member data to the template
-    });
-};
-
-export {facultyListPage, facultyDetailPage };
+export { catalogListPage, courseDetailPage };
