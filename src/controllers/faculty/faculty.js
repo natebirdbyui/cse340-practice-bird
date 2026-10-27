@@ -1,4 +1,7 @@
 import { getFacultyById, getSortedFaculty } from '../../models/faculty/faculty.js';
+import pool from '../../config/db.js';
+
+
 
 const facultyListPage = (req, res) => {
     const sortBy = req.query.sortBy || 'name';
@@ -28,3 +31,8 @@ const facultyDetailPage = (req, res, next) => {
 };
 
 export { facultyListPage, facultyDetailPage };
+export async function getSortedFaculty(sortBy) {
+    // Example query using the shared pool
+    const result = await pool.query('SELECT * FROM faculty');
+    return result.rows;
+}

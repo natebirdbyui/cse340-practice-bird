@@ -42,7 +42,7 @@ const courseDetailPage = (req, res, next) => {
 
     console.log(`Viewing course: ${courseId}, sorted by: ${sortBy}`);
 
-    // Renders src/views/course-detail.ejs (Solution A)
+    // Renders src/views/course-detail.ejs
     res.render('course-detail', {
         title: `${course.id} - ${course.title}`,
         course: { ...course, sections: sortedSections },
