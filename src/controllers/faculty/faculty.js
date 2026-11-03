@@ -31,8 +31,3 @@ const facultyDetailPage = (req, res, next) => {
 };
 
 export { facultyListPage, facultyDetailPage };
-export async function getSortedFaculty(sortBy) {
-    // Example query using the shared pool
-    const result = await pool.query('SELECT * FROM faculty');
-    return result.rows;
-}
