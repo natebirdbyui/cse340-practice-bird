@@ -23,7 +23,7 @@ body {
             color: black;
             font-weight: bold;
             &:hover {
-                color: #0066cc;
+                color: #f8e804;
             }
         }
     }

@@ -1,3 +1,14 @@
+//RENDER CRASH ERROR MESSAGE
+process.on('uncaughtException', (err) => {
+    console.error('FATAL STARTUP EXCEPTION:', err);
+    process.exit(1);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('FATAL UNHANDLED REJECTION at:', promise, 'reason:', reason);
+    process.exit(1);
+});
+
 /**
  * Import libraries
  */
@@ -195,6 +206,6 @@ if (NODE_ENV.includes('dev')) {
 /**
  * Start the server and listen on the specified port
  */
-app.listen(PORT, () => {
-    console.log(`Server is running on http://127.0.0.1:${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Server is running on port ${PORT}`);
 });
