@@ -1,10 +1,9 @@
 import { getFacultyById, getSortedFaculty } from '../../models/faculty/faculty.js';
-import pool from '../db.js';
 
 export const facultyListPage = async (req, res, next) => {
     try {
         const sortBy = req.query.sortBy || 'name';
-        const facultyList = await getSortedFaculty(sortBy); // Calling the model function
+        const facultyList = await getSortedFaculty(sortBy);
 
         res.render('faculty/list', {
             title: 'Faculty Directory',
@@ -19,7 +18,7 @@ export const facultyListPage = async (req, res, next) => {
 export const facultyDetailPage = async (req, res, next) => {
     try {
         const { facultyId } = req.params;
-        const facultyMember = await getFacultyById(facultyId); // Calling the model function
+        const facultyMember = await getFacultyById(facultyId);
 
         if (!facultyMember) {
             const err = new Error('Faculty member not found');
@@ -34,14 +33,4 @@ export const facultyDetailPage = async (req, res, next) => {
     } catch (err) {
         next(err);
     }
-};
-
-export const getSortedFaculty = async (sortBy) => {
-    const result = await pool.query(`SELECT * FROM faculty ORDER BY ${sortBy}`);
-    return result.rows; 
-};
-
-export const getFacultyById = async (facultyId) => {
-    const result = await pool.query('SELECT * FROM faculty WHERE id = $1', [facultyId]);
-    return result.rows[0];
 };
