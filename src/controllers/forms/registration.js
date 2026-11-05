@@ -52,10 +52,12 @@ const processRegistration = async (req, res) => {
     // Check for validation errors
     const errors = validationResult(req);
 
+   // Inside your validation error check
     if (!errors.isEmpty()) {
-        // TODO: Log validation errors to console for debugging
-        console.error('Validation errors:', errors.array());
-        // TODO: Redirect back to /register
+        // Store each validation error as a separate flash message
+        errors.array().forEach(error => {
+            req.flash('error', error.msg);
+        });
         return res.redirect('/register');
     }
 
@@ -71,7 +73,8 @@ const processRegistration = async (req, res) => {
         /* Check if email exists */ 
         if (exists) {    
             // Log message: 'Email already registered'
-            console.log('Email already registered');
+            req.flash('error', 'Email already registered');
+            //console.log('Email already registered');
             // TODO: Redirect back to /register
             return res.redirect('/register');
         }
@@ -82,16 +85,20 @@ const processRegistration = async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, 10);
         // Save user to database with hashed password
         // TODO: Call saveUser(name, email, hashedPassword)
-        await saveUser(name, email, hashedPassword);
-
-        // TODO: Log success message to console
-        console.log('Registration successful');
-        // TODO: Redirect to /register/list to show successful registration
-        return res.redirect('/register/list');
+        const user = await saveUser(name, email, hashedPassword);
+        if (!empty(user)) {
+            req.flash('success', 'Registration successful');
+            // TODO: Redirect to /register/list to show successful registration
+            return res.redirect('/register/list');
+        } else {
+            req.flash('error', 'Registration failed. Please try again.');
+            return res.redirect('/register');
+        }
         // NOTE: Later when we add authentication, we'll change this to require login first
     } catch (error) {
         // TODO: Log the error to console
-        console.error('Registration error:', error);
+        req.flash('error', 'Registration failed. Please try again later.');
+        //console.error('Registration error:', error);
         // TODO: Redirect back to /register
         return res.redirect('/register');
     }
@@ -110,7 +117,8 @@ const showAllUsers = async (req, res) => {
     } catch (error) {
         // TODO: Log the error to console
         // users remains empty array on error
-        console.log('Unable to display registered users:', error);
+        req.flash('error', 'Unable to display registered users.');
+        //console.log('Unable to display registered users:', error);
     }
 
     // TODO: Render the users list view (forms/registration/list)

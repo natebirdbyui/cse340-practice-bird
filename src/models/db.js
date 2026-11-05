@@ -62,3 +62,5 @@ if (process.env.NODE_ENV.includes('dev') && process.env.ENABLE_SQL_LOGGING === '
 }
 
 export default db;
+// Export the CA certificate if needed for SSL connections
+//export { caCert };

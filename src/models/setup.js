@@ -39,6 +39,9 @@ const setupDatabase = async () => {
     const seedPath = join(__dirname, 'sql', 'seed.sql');
     const seedSQL = fs.readFileSync(seedPath, 'utf8');
     await db.query(seedSQL);
+    console.log('Database tables initialized from seed.sql');
+
+    //return true;
 
     // Run practice.sql if it exists (for student assignments)
     const practicePath = join(__dirname, 'sql', 'practice.sql');
