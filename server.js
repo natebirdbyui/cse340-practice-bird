@@ -15,7 +15,9 @@ process.on('unhandledRejection', (reason, promise) => {
 import express from 'express';
 import { fileURLToPath } from 'url';
 import path from 'path';
-
+import session from 'express-session';
+import connectPgSimple from 'connect-pg-simple';
+import { startSessionCleanup } from './src/utils/session-cleanup.js';
 import router from './src/controllers/routes.js';
 
 /**
@@ -38,6 +40,28 @@ const app = express();
 app.use(express.static(path.join(__dirname, 'public')));
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'src/views'));
+
+// Initialize PostgreSQL session store
+const pgSession = connectPgSimple(session);
+
+// Configure session middleware
+app.use(session({
+    store: new pgSession({
+        conObject: {
+            connectionString: process.env.DB_URL
+        },
+        tableName: 'session',
+        createTableIfMissing: true
+    }),
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        secure: NODE_ENV.includes('dev') !== true,
+        httpOnly: true,
+        maxAge: 24 * 60 * 60 * 1000
+    }
+}));
 
 /**
  * Global template variables middleware
@@ -112,6 +136,9 @@ const addDemoHeaders = (req, res, next) => {
     res.setHeader('X-Middleware-Demo', 'Express Middleware Learning Demo');
     next();
 };
+
+// Start automatic session cleanup
+startSessionCleanup();
 /**
  * Routes (ALL application routes come FIRST)
  */

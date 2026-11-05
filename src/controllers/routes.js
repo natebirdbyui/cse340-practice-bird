@@ -9,4 +9,10 @@ router.get('/faculty/:facultyId', facultyDetailPage);
 router.get('/catalog', catalogListPage);
 router.get('/catalog/:courseId', courseDetailPage);
 
+// Add login-specific styles to all login routes
+router.use('/login', (req, res, next) => {
+    res.addStyle('<link rel="stylesheet" href="/css/login.css">');
+    next();
+});
+
 export default router;
