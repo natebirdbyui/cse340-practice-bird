@@ -38,9 +38,8 @@ const facultyDetailPage = (req, res, next) => {
 
 export { facultyListPage, facultyDetailPage };
 export const getSortedFaculty = async (sortBy) => {
-    // Run your SQL query using pool here
     const result = await pool.query(`SELECT * FROM faculty ORDER BY ${sortBy}`);
-    return result.rows; // or result[0] depending on your driver (pg vs mysql2)
+    return result.rows; 
 };
 
 export const getFacultyById = async (facultyId) => {
