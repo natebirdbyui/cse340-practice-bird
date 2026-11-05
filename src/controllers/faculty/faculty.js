@@ -1,5 +1,5 @@
 import { getFacultyById, getSortedFaculty } from '../../models/faculty/faculty.js';
-import pool from '../../config/db.js';
+import pool from '../../models/db.js';
 
 
 
