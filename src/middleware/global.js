@@ -82,7 +82,7 @@ const addLocalVariables = (req, res, next) => {
     setHeadAssetsFunctionality(res);
 
     // Convenience variable for UI state based on session state
-    res.locals.isLoggedIn = false;
+    res.locals.isLoggedIn = Boolean(req.session?.user || req.session?.isLoggedIn);
     if (req.session && req.session.user) {
         res.locals.isLoggedIn = true;
     }  
