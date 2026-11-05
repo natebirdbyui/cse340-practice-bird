@@ -58,7 +58,10 @@ app.use(express.json());
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'src/views'));
-
+app.use((req, res, next) => {
+    res.locals.isLoggedIn = req.session && req.session.user ? true : false;
+    next();
+});
 /**
  * Global Middleware
  */
