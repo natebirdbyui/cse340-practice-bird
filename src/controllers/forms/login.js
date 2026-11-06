@@ -55,7 +55,7 @@ const processLogin = async (req, res) => {
         // TODO: If not found, log "User not found" and redirect to /login
         if (!user) {
             //console.error('User not found');
-            req.flash('error', 'User not found');
+            req.flash('error', 'Invalid email or password');
             return res.redirect('/login');
         }
         // TODO: Verify password using verifyPassword(password, user.password)
@@ -63,7 +63,7 @@ const processLogin = async (req, res) => {
         // TODO: If password incorrect, log "Invalid password" and redirect to /login
         if (!isValid) {
             //console.error('Password is incorrect');
-            req.flash('error', 'Password is incorrect');
+            req.flash('error', 'Invalid email or password');
             return res.redirect('/login');
         }
         // SECURITY: Remove password from user object before storing in session
@@ -130,6 +130,7 @@ const processLogout = (req, res) => {
         res.clearCookie('connect.sid');
 
         // Redirect the user to the home page
+        req.flash('success', 'Logged out successfully');
         res.redirect('/');
     });
 };

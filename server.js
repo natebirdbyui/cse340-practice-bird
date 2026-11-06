@@ -64,8 +64,7 @@ app.set('views', path.join(__dirname, 'src/views'));
  * Global Middleware (sets isLoggedIn, currentYear, greetings, etc.)
  */
 app.use(addLocalVariables);
-// Global middleware (sets res.locals variables)
-app.use(addLocalVariables);
+
 
 // Flash message middleware (must come after session and global middleware)
 app.use(flash);

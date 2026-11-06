@@ -89,7 +89,7 @@ const processRegistration = async (req, res) => {
         if (!empty(user)) {
             req.flash('success', 'Registration successful');
             // TODO: Redirect to /register/list to show successful registration
-            return res.redirect('/register/list');
+            return res.redirect('/login');
         } else {
             req.flash('error', 'Registration failed. Please try again.');
             return res.redirect('/register');
