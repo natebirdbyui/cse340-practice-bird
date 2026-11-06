@@ -15,4 +15,23 @@ const requireLogin = (req, res, next) => {
     }
 };
 
-export { requireLogin };
+// Middleware to require specific role
+const requireRole = (roleName) => {
+    return (req, res, next) => {
+        if (!req.session || !req.session.accountData) {
+            req.flash("notice", "Please log in.");
+            return res.redirect("/account/login");
+        }
+        
+        if (req.session.accountData.role_name !== roleName) {
+            req.flash("notice", "You do not have permission to access this resource.");
+            return res.redirect("/");
+        }
+        
+        next();
+    };
+};
+
+
+
+export { requireLogin, requireRole };
