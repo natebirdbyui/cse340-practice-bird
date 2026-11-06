@@ -27,14 +27,14 @@ CREATE TABLE IF NOT EXISTS users (
 );
 
 -- Roles table defines available roles
-CREATE TABLE roles (
+CREATE TABLE IF NOT EXISTS roles (
     role_id SERIAL PRIMARY KEY,
     role_name VARCHAR(50) UNIQUE NOT NULL,
     role_description TEXT
 );
 
 -- Users table references roles
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
     user_id SERIAL PRIMARY KEY,
     username VARCHAR(50) UNIQUE NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
