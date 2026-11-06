@@ -1,17 +1,52 @@
-import express from 'express'; // Import the Express framework for routing
-import { facultyListPage, facultyDetailPage } from './faculty/faculty.js';
+import { Router } from 'express';
+import { addDemoHeaders } from '../middleware/demo/headers.js';
 import { catalogListPage, courseDetailPage } from './catalog/catalog.js';
-import { homePage } from './index.js';
-import { loginPage, loginUser } from './authcontroller.js';
+import { facultyListPage, facultyDetailPage } from './faculty/faculty.js';
+import { homePage, aboutPage, demoPage, testErrorPage } from './index.js';
+import contactRoutes from './forms/contact.js';
+import registrationRoutes from './forms/registration.js';
+import loginRoutes from './forms/login.js';
+import { processLogout, showDashboard } from './forms/login.js';
+import { requireLogin } from '../middleware/auth.js';
 
-const router = express.Router();
+
+const router = Router();
 
 // 1. Homepage Route
 router.get('/', homePage);
 
-// Existing routes for faculty and catalog pages
+// About Page
+router.get('/about', aboutPage);
+
+// Add catalog-specific styles to all catalog routes
+router.use('/catalog', (req, res, next) => {
+    res.addStyle('<link rel="stylesheet" href="/css/catalog.css">');
+    next();
+});
+
+router.use('/faculty', (req, res, next) => {
+    res.addStyle('<link rel="stylesheet" href="/css/faculty.css">');
+    next();
+});
+
+router.use('/contact', (req, res, next) => {
+    res.addStyle('<link rel="stylesheet" href="/css/contact.css">');
+    next();
+});
+
+router.use('/login', (req, res, next) => {
+    res.addStyle('<link rel="stylesheet" href="/css/login.css">');
+    next();
+});
+
+router.use('/register', (req, res, next) => {
+    res.addStyle('<link rel="stylesheet" href="/css/register.css">');
+    next();
+});
+//routes for faculty and catalog pages
 router.get('/faculty', facultyListPage);
 router.get('/faculty/:facultySlug', facultyDetailPage);
+
 router.get('/catalog', catalogListPage);
 router.get('/catalog/:slugId', courseDetailPage);
 
@@ -20,14 +55,19 @@ router.get('/department', (req, res) => {
     res.render('department');
 });
 
-// Login middleware and routes
-router.use('/login', (req, res, next) => {
-    res.addStyle('<link rel="stylesheet" href="/css/login.css">');
-    next();
-});
+// Demo page with special middleware
+router.get('/demo', addDemoHeaders, demoPage);
 
-// Login routes
-router.get('/login', loginPage);
-router.post('/login', loginUser);
+// Contact form routes
+router.use('/contact', contactRoutes);
+router.use('/register', registrationRoutes);
+
+
+// Login routes (form and submission)
+router.use('/login', loginRoutes);
+
+// Authentication-related routes at root level
+router.get('/logout', processLogout);
+router.get('/dashboard', requireLogin, showDashboard);
 
 export default router;

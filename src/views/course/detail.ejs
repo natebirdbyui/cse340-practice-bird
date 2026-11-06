@@ -1,8 +1,8 @@
-<%- include('partials/header') %>
+<%- include('../partials/header') %>
 
 <main>
     <div class="course-header">
-        <h1><%= course.title %></h1>
+        <h1><%= course.name %></h1>
         <p class="course-meta"><%= course.courseCode %> • <%= course.creditHours %> credits</p>
         <p class="course-description"><%= course.description %></p>
     </div>
@@ -34,4 +34,4 @@
     </div>
 </main>
 
-<%- include('partials/footer') %> 
+<%- include('../partials/footer') %> 

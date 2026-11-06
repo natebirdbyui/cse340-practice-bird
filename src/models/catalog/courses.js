@@ -106,9 +106,9 @@ const getCoursesByDepartment = async (departmentId, sortBy = 'course_code') => {
         WHERE c.department_id = $1
         ORDER BY ${orderByClause}
     `;
-    console.log(query);
+    //console.log(query);
     const result = await db.query(query, [departmentId]);
-    console.log(result.rows);
+    //console.log(result.rows);
 
     return result.rows.map(course => ({
         id: course.id,

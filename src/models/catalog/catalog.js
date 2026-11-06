@@ -43,7 +43,7 @@ const getSectionsByCourse = async (identifier, identifierType = 'slug', sortBy =
     `;
     const result = await db.query(query, [identifier]);
     
-    console.log(result.rows);
+    //console.log(result.rows);
     /**
      * Transform database column names (snake_case) to JavaScript convention (camelCase).
      * This is a common pattern when working with databases in JavaScript.

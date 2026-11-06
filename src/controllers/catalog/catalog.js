@@ -8,7 +8,7 @@ const catalogListPage = async (req, res) => {
 
     //console.log(courses);
 
-    res.render('catalog', {
+    res.render('catalog/catalog', {
         title: 'Course Catalog',
         courses: courses
     });
@@ -50,7 +50,7 @@ const courseDetailPage = async (req, res, next) => {
     //console.log(`Viewing course: ${courseSlug}, sorted by: ${sortBy}`);
 
     // Renders src/views/course-detail.ejs
-    res.render('course-detail', {
+    res.render('course/detail', {
         title: `${course.courseCode} - ${course.title}`,
         course: course,
         sections: sortedSections,
