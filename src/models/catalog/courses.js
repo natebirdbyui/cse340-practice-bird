@@ -12,8 +12,8 @@ const getAllCourses = async (sortBy = 'department') => {
      * When sorting by department, also sort by course_code within each department.
      */
     const orderByClause = sortBy === 'name' ? 'c.name' :
-                          sortBy === 'course_code' ? 'c.course_code' :
-                          'd.name, c.course_code';
+                        sortBy === 'course_code' ? 'c.course_code' :
+                            'd.name, c.course_code';
     
     /**
      * JOIN with departments to get department name and code.
@@ -21,7 +21,7 @@ const getAllCourses = async (sortBy = 'department') => {
      */
     const query = `
         SELECT c.id, c.course_code, c.name, c.description, c.credit_hours, c.slug,
-               d.name as department_name, d.code as department_code
+            d.name as department_name, d.code as department_code
         FROM courses c
         JOIN departments d ON c.department_id = d.id
         ORDER BY ${orderByClause}
@@ -59,7 +59,7 @@ const getCourse = async (identifier, identifierType = 'id') => {
     
     const query = `
         SELECT c.id, c.course_code, c.name, c.description, c.credit_hours, c.slug,
-               d.name as department_name, d.code as department_code
+                d.name as department_name, d.code as department_code
         FROM courses c
         JOIN departments d ON c.department_id = d.id
         WHERE ${whereClause}
@@ -106,9 +106,10 @@ const getCoursesByDepartment = async (departmentId, sortBy = 'course_code') => {
         WHERE c.department_id = $1
         ORDER BY ${orderByClause}
     `;
-    
+    console.log(query);
     const result = await db.query(query, [departmentId]);
-    
+    console.log(result.rows);
+
     return result.rows.map(course => ({
         id: course.id,
         courseCode: course.course_code,
@@ -127,5 +128,31 @@ const getCoursesByDepartment = async (departmentId, sortBy = 'course_code') => {
  */
 const getCourseById = (courseId) => getCourse(courseId, 'id');
 const getCourseBySlug = (courseSlug) => getCourse(courseSlug, 'slug');
+
+
+// export const getSectionsByCourseSlug = async (slug, sortBy = 'time') => {
+//     // Determine the ORDER BY clause based on sort parameter
+//     const orderBy = sortBy === 'professor' ? 's.professor' :
+//                     sortBy === 'room' ? 's.room' :
+//                     's.time';
+
+//     const query = `
+//         SELECT s.id, s.days, s.time, s.room, s.professor 
+//         FROM sections s
+//         JOIN courses c ON s.course_id = c.id
+//         WHERE c.slug = $1
+//         ORDER BY ${orderBy}
+//     `;
+
+//     const result = await db.query(query, [slug]);
+
+//     return result.rows.map(section => ({
+//         id: section.id,
+//         days: section.days,
+//         time: section.time,
+//         room: section.room,
+//         professor: section.professor
+//     }));
+// };
 
 export { getAllCourses, getCourseById, getCourseBySlug, getCoursesByDepartment };

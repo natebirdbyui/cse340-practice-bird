@@ -1,13 +1,16 @@
-import { getFacultyById, getSortedFaculty } from '../../models/faculty/faculty.js';
+import { getFacultyBySlug, getSortedFaculty } from '../../models/faculty/faculty.js';
 
-export const facultyListPage = async (req, res, next) => {
+// 1. Faculty List Page with Sorting
+const facultyListPage = async (req, res, next) => {
     try {
-        const sortBy = req.query.sortBy || 'name';
-        const facultyList = await getSortedFaculty(sortBy);
+        const sortBy = req.query.sort || 'name';
+        
+        // Use the imported model function and pass the sort query
+        const faculty = await getSortedFaculty(sortBy);
 
         res.render('faculty/list', {
             title: 'Faculty Directory',
-            facultyList,
+            facultyList: faculty || [], 
             currentSort: sortBy
         });
     } catch (err) {
@@ -15,22 +18,21 @@ export const facultyListPage = async (req, res, next) => {
     }
 };
 
-export const facultyDetailPage = async (req, res, next) => {
-    try {
-        const { facultyId } = req.params;
-        const facultyMember = await getFacultyById(facultyId);
+// 2. Faculty Detail Page
+const facultyDetailPage = async (req, res, next) => {
+    const facultySlug = req.params.facultySlug;
+    const facultyMember = await getFacultyBySlug(facultySlug);
 
-        if (!facultyMember) {
-            const err = new Error('Faculty member not found');
-            err.status = 404;
-            return next(err);
-        }
-
-        res.render('faculty/detail', {
-            title: facultyMember.name,
-            faculty: facultyMember
-        });
-    } catch (err) {
-        next(err);
+    if (!facultyMember || Object.keys(facultyMember).length === 0) {
+        const err = new Error(`Faculty member ${facultySlug} not found`);
+        err.status = 404;
+        return next(err);
     }
+
+    res.render('faculty/detail', {
+        title: `${facultyMember.name} Faculty Profile`,
+        faculty: facultyMember
+    });
 };
+
+export { facultyListPage, facultyDetailPage };

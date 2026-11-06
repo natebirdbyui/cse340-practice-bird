@@ -74,36 +74,37 @@ const faculty = {
     }
 };
 
-const getFacultyById = (facultyId) => {
-    // Look up faculty member by ID, return null if not found
-    const member = faculty[facultyId];
-    if (!member) {
-        return null;
-    }
-    // Return the object with its id included
-    return { ...member, id: facultyId };
-};
-
-const getSortedFaculty = (sortBy) => {
-    // Validate sortBy parameter (name, department, or title), default to 'name' if invalid
+export const getSortedFaculty = (sortBy) => {
     const validSortFields = ['name', 'department', 'title'];
-    const sortField = validSortFields.includes(sortBy) ? sortBy : 'name';
+    const sortField = validSortFields.includes(sortBy) ? sortBy : 'department';
 
-    // Create an array of all faculty members
     const facultyArray = [];
     for (const key in faculty) {
         facultyArray.push({ ...faculty[key], id: key });
     }
 
-    // Sort the array by the chosen property safely (using localeCompare for strings)
     facultyArray.sort((a, b) => {
         const valA = a[sortField] || '';
         const valB = b[sortField] || '';
         return valA.localeCompare(valB);
     });
 
-    // Return the sorted array
     return facultyArray;
 };
 
-export { getFacultyById, getSortedFaculty };
+export const getFacultyById = (facultyId) => {
+    const member = faculty[facultyId];
+    if (!member) {
+        return null;
+    }
+    return { ...member, id: facultyId };
+};
+
+// Slug lookup maps directly to your key names (e.g., 'brother-jack')
+export const getFacultyBySlug = (slug) => {
+    const member = faculty[slug];
+    if (!member) {
+        return {}; // Returns empty object to trigger 404 check in controller
+    }
+    return { ...member, id: slug };
+};

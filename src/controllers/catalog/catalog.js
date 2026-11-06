@@ -1,8 +1,13 @@
-import { getAllCourses, getCourseById } from '../../models/catalog/catalog.js';
+//import { getAllCourses, getCourseById } from '../../models/catalog/catalog.js';
+import { getAllCourses, getCourseBySlug } from '../../models/catalog/courses.js';
+import { getSectionsByCourseSlug } from '../../models/catalog/catalog.js';
 
 // 1. Catalog List Page
-const catalogListPage = (req, res) => {
-    const courses = getAllCourses();
+const catalogListPage = async (req, res) => {
+    const courses = await getAllCourses();
+
+    //console.log(courses);
+
     res.render('catalog', {
         title: 'Course Catalog',
         courses: courses
@@ -10,22 +15,24 @@ const catalogListPage = (req, res) => {
 };
 
 // 2. Course Detail Page with Sorting
-const courseDetailPage = (req, res, next) => {
-    const courseId = req.params.courseId;
-    const course = getCourseById(courseId);
+const courseDetailPage = async (req, res, next) => {
+    const courseSlug = req.params.slugId;
+    const course = await getCourseBySlug(courseSlug);
 
     // Handle course not found - passes error to global error handler in server.js
-    if (!course) {
-        const err = new Error(`Course ${courseId} not found`);
+    if (!course || Object.keys(course).length === 0) {
+        const err = new Error(`Course ${courseSlug} not found`);
         err.status = 404;
         return next(err);
-    }
+    }   
 
-    // Get sort query parameter (default to 'time')
+    // Fetch sections using your imported model function
     const sortBy = req.query.sort || 'time';
+    const sections = await getSectionsByCourseSlug(courseSlug, sortBy);
 
-    // Create a shallow copy of sections array before sorting
-    let sortedSections = [...course.sections];
+    //console.log(sections);
+    // Create a shallow copy of sections array before sorting (with safety fallback)
+    let sortedSections = [...(sections || [])];
 
     switch (sortBy) {
         case 'professor':
@@ -40,12 +47,13 @@ const courseDetailPage = (req, res, next) => {
             break;
     }
 
-    console.log(`Viewing course: ${courseId}, sorted by: ${sortBy}`);
+    //console.log(`Viewing course: ${courseSlug}, sorted by: ${sortBy}`);
 
     // Renders src/views/course-detail.ejs
     res.render('course-detail', {
-        title: `${course.id} - ${course.title}`,
-        course: { ...course, sections: sortedSections },
+        title: `${course.courseCode} - ${course.title}`,
+        course: course,
+        sections: sortedSections,
         currentSort: sortBy
     });
 };

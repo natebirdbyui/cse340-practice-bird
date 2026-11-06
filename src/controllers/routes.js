@@ -6,20 +6,28 @@ import { loginPage, loginUser } from './authcontroller.js';
 
 const router = express.Router();
 
-// 1. Homepage Route (THIS WAS MISSING)
+// 1. Homepage Route
 router.get('/', homePage);
 
 // Existing routes for faculty and catalog pages
 router.get('/faculty', facultyListPage);
-router.get('/faculty/:facultyId', facultyDetailPage);
+router.get('/faculty/:facultySlug', facultyDetailPage);
 router.get('/catalog', catalogListPage);
-router.get('/catalog/:courseId', courseDetailPage);
+router.get('/catalog/:slugId', courseDetailPage);
+
+//Department Page Routes
+router.get('/department', (req, res) => {
+    res.render('department');
+});
 
 // Login middleware and routes
 router.use('/login', (req, res, next) => {
     res.addStyle('<link rel="stylesheet" href="/css/login.css">');
     next();
 });
-router.get('/login', loginPage); // Uncomment if you have a controller for it
+
+// Login routes
+router.get('/login', loginPage);
+router.post('/login', loginUser);
 
 export default router;
